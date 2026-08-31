@@ -1,4 +1,4 @@
-# Clean Reactive Architecture — Angular + TanStack Query Sample
+# Clean Reactive Architecture — Angular Sample
 
 A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular and TanStack Query.
 
