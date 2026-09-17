@@ -1,7 +1,10 @@
 import { InjectionToken } from '@angular/core';
 import type { ItemEntityId, OrderEntityId } from '../../repository';
 
-/** Read-only contract consumed by order.component.html. */
+/**
+ * Presenter contract consumed by order.component.html. Each property returns
+ * its own behaviorless ViewModel value.
+ */
 export interface Presenter {
   hasOrder: boolean;
   orderId: OrderEntityId;

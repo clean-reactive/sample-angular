@@ -41,7 +41,8 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
 | Use case interactor | Injectable class or method on the interaction owner | `use-cases/delete-order.use-case.ts`, `components/order-item/order-item.component.ts` |
 | Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `is-delete-order-mutating.selector.ts` |
-| Presenter | Injectable class returning a view model | `components/order/order.presenter.ts` |
+| Presenter | Injectable class exposing ViewModels | `components/order/order.presenter.ts` |
+| ViewModel | Value returned by each presenter property | `Presenter` properties in `components/order/order.types.ts` |
 | Controller | Injectable class returning callbacks | `components/order/order.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
 
@@ -54,7 +55,7 @@ The read path is:
 1. `OrderContext` captures the `orderId` input as a signal.
 2. Component-scoped providers pass that signal to `OrderByIdSelector`, `IsDeleteOrderMutatingSelector`, `OrderPresenter`, and `OrderController` through their narrow contexts.
 3. The selectors derive entity and mutation state without depending on the component.
-4. `OrderPresenter` converts that state into the `Presenter` view-model contract.
+4. `OrderPresenter` converts that state into the ViewModel values declared by the `Presenter` contract.
 5. `Order` exposes the contract to `order.component.html`.
 
 The write path is shorter: the template event reaches `OrderController`, which supplies the current ID to `DeleteOrderUseCase`; the use case then invokes `OrdersRepository`.

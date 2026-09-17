@@ -11,8 +11,8 @@ const DEFAULT_ITEM_IDS: ItemEntityId[] = [];
 const DEFAULT_USER_ID = '';
 
 /**
- * Converts selector results into a stable, template-ready view model. It
- * performs no mutations and returns safe defaults while the requested order is
+ * Converts selector results into stable, template-ready values. The presenter
+ * performs no mutations and returns safe defaults while the order is
  * unavailable.
  */
 @Injectable()
