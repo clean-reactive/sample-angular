@@ -39,10 +39,10 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Gateway interface | TypeScript interface + `InjectionToken` | `OrdersGateway` in `orders.gateway.ts` |
 | Repository (gateway + entities) | Injectable class with TanStack Query | `repository/orders-repository/orders.repository.ts` |
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
-| Use case interactor | Injectable class | `use-cases/delete-order-item.use-case.ts` |
-| Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `item-by-id.selector`, … |
-| Presenter | Injectable class returning a view model | `components/order/order.presenter.ts`, `components/order-item/order-item.presenter.ts` |
-| Controller | Injectable class returning callbacks | `components/order/order.controller.ts`, `components/order-item/order-item.controller.ts` |
+| Use case interactor | Method on the interaction owner | `components/order/order.controller.ts`, `components/order-item/order-item.component.ts` |
+| Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `is-delete-order-mutating.selector.ts` |
+| Presenter | Injectable class returning a view model | `components/order/order.presenter.ts` |
+| Controller | Injectable class returning callbacks | `components/order/order.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
 
 ## Key design decisions
@@ -82,11 +82,7 @@ src/features
     │   │   └── order.types.ts
     │   ├── order-item
     │   │   ├── order-item.component.ts
-    │   │   ├── order-item.component.html
-    │   │   ├── order-item.context.ts
-    │   │   ├── order-item.controller.ts
-    │   │   ├── order-item.presenter.ts
-    │   │   └── order-item.types.ts
+    │   │   └── order-item.component.html
     │   ├── orders
     │   │   ├── orders.component.ts
     │   │   └── orders.component.html
@@ -104,13 +100,10 @@ src/features
     │       └── remote-orders.service.ts
     ├── selectors                   # selectors
     │   ├── is-delete-order-mutating.selector.ts
-    │   ├── item-by-id.selector
     │   ├── order-by-id.selector
     │   └── orders.selector.ts
     ├── store                       # application business entity
     │   └── orders-presentation.store.ts
-    ├── use-cases                   # use case interactors
-    │   └── delete-order-item.use-case.ts
     ├── orders.providers.ts
     └── test-ids.ts
 ```

@@ -1,65 +1,101 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { injectMutationState } from '@tanstack/angular-query-experimental';
 import { deleteItemButtonTestId, orderItemTestId } from '../../test-ids';
-import { DeleteOrderItemUseCase } from '../../use-cases';
 import {
-  IsDeleteOrderMutatingSelector,
-  isDeleteOrderMutatingSelectorContext,
-  ItemByIdSelector,
-  itemByIdSelectorContext,
-} from '../../selectors';
-import { ORDER_ITEM_CONTEXT, OrderItemContext } from './order-item.context';
-import { OrderItemController, orderItemControllerContext } from './order-item.controller';
-import { OrderItemPresenter, orderItemPresenterContext } from './order-item.presenter';
-import type { Controller, Presenter } from './order-item.types';
-import type { ItemEntityId } from '../../repository';
+  deleteOrderItemMutationKey,
+  deleteOrderMutationKey,
+  OrdersRepository,
+  type ItemEntityId,
+  type OrderEntityId,
+} from '../../repository';
+import { OrdersSelector } from '../../selectors';
+
+interface Presenter {
+  hasItem: boolean;
+  itemIdLabel: ItemEntityId;
+  productIdLabel: string;
+  productQuantity: number;
+  isDeleteItemButtonDisabled: boolean;
+}
+
+interface Controller {
+  deleteOrderItemButtonClicked(): Promise<void>;
+}
 
 @Component({
   selector: 'app-order-item',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  hostDirectives: [{ directive: OrderItemContext, inputs: ['orderId', 'itemId'] }],
-  providers: [
-    itemByIdSelectorContext.provide([ORDER_ITEM_CONTEXT], (context) => ({
-      orderId: context.orderId,
-      itemId: context.itemId,
-    })),
-    ItemByIdSelector,
-    isDeleteOrderMutatingSelectorContext.provide(ORDER_ITEM_CONTEXT),
-    IsDeleteOrderMutatingSelector,
-    DeleteOrderItemUseCase,
-    orderItemPresenterContext.provide(ORDER_ITEM_CONTEXT),
-    OrderItemPresenter,
-    orderItemControllerContext.provide(ORDER_ITEM_CONTEXT),
-    OrderItemController,
-  ],
   templateUrl: './order-item.component.html',
 })
 export class OrderItem implements Presenter, Controller {
-  private readonly presenter = inject(OrderItemPresenter);
-  private readonly controller = inject(OrderItemController);
+  private readonly repository = inject(OrdersRepository);
+  private readonly ordersSelector = inject(OrdersSelector);
+
+  readonly orderId = input.required<OrderEntityId>();
+  readonly itemId = input.required<ItemEntityId>();
+
+  private readonly _item = computed(() => {
+    const order = this.ordersSelector.result().find((candidate) => candidate.id === this.orderId());
+    return order?.itemEntities.find((item) => item.id === this.itemId());
+  });
+  private readonly _pendingOrderIds = injectMutationState(() => ({
+    filters: { mutationKey: deleteOrderMutationKey, status: 'pending' },
+    select: (mutation) => {
+      const variables = mutation.state.variables as { orderId: OrderEntityId };
+      return variables.orderId;
+    },
+  }));
+  private readonly _pendingItemDeletes = injectMutationState(() => ({
+    filters: { mutationKey: deleteOrderItemMutationKey, status: 'pending' },
+    select: (mutation) => {
+      const variables = mutation.state.variables as {
+        orderId: OrderEntityId;
+        itemId: ItemEntityId;
+      };
+      return variables.orderId === this.orderId() && variables.itemId === this.itemId();
+    },
+  }));
+  private readonly _isDeleteItemButtonDisabled = computed(
+    () =>
+      this._pendingItemDeletes().includes(true) || this._pendingOrderIds().includes(this.orderId()),
+  );
+
   protected readonly orderItemTestId = orderItemTestId;
   protected readonly deleteItemButtonTestId = deleteItemButtonTestId;
 
   get hasItem(): boolean {
-    return this.presenter.hasItem;
+    return this._item() !== undefined;
   }
 
-  get itemId(): ItemEntityId {
-    return this.presenter.itemId;
+  get itemIdLabel(): ItemEntityId {
+    return this.itemId();
   }
 
-  get productId(): string {
-    return this.presenter.productId;
+  get productIdLabel(): string {
+    return this._item()?.productId ?? '';
   }
 
   get productQuantity(): number {
-    return this.presenter.productQuantity;
+    return this._item()?.quantity ?? 0;
   }
 
   get isDeleteItemButtonDisabled(): boolean {
-    return this.presenter.isDeleteItemButtonDisabled;
+    return this._isDeleteItemButtonDisabled();
   }
 
-  deleteOrderItemButtonClicked(): void {
-    this.controller.deleteOrderItemButtonClicked();
+  async deleteOrderItemButtonClicked(): Promise<void> {
+    const orderId = this.orderId();
+    const itemId = this.itemId();
+
+    try {
+      const order = this.ordersSelector.result().find((candidate) => candidate.id === orderId);
+      if (order?.itemEntities.length === 1) {
+        await this.repository.deleteOrder.mutateAsync({ orderId });
+        return;
+      }
+      await this.repository.deleteOrderItem.mutateAsync({ orderId, itemId });
+    } catch (error) {
+      console.error('OrderItem.deleteOrderItem', error);
+    }
   }
 }
