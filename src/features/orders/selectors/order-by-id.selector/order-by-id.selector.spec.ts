@@ -13,8 +13,8 @@ import {
   type OrderEntityId,
 } from '../../repository';
 import { OrdersPresentationStore } from '../../store';
-import { makeOrderEntities } from '../../test-utils';
 import {
+  makeOrderEntities,
   makeOrdersGatewayMock,
   type MockedOrdersGateway,
 } from '../../repository/orders-repository/utils/testing';

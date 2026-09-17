@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { OrdersStatistics } from './orders-statistics.component';
 import { OrdersSelector } from '../../selectors';
 import type { OrderEntity } from '../../repository';
-import { makeOrderEntities } from '../../test-utils';
+import { makeOrderEntities } from '../../repository/orders-repository/utils/testing';
 
 describe(`${OrdersStatistics.name}`, () => {
   let orders: WritableSignal<OrderEntity[]>;

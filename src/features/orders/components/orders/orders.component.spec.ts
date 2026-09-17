@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Orders } from './orders.component';
 import { provideOrders } from '../../orders.providers';
 import { I_ORDERS_GATEWAY, type OrderEntity } from '../../repository';
-import { makeOrderEntities } from '../../test-utils';
 import {
+  makeOrderEntities,
   makeOrdersGatewayMock,
   type MockedOrdersGateway,
 } from '../../repository/orders-repository/utils/testing';
