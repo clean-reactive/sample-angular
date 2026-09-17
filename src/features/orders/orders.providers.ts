@@ -10,7 +10,7 @@ import {
   RemoteOrdersService,
 } from './repository';
 import { OrdersPresentationStore } from './store';
-import { OrderIdsSelector, OrdersSelector, TotalItemsQuantitySelector } from './selectors';
+import { OrderIdsSelector, OrdersSelector } from './selectors';
 
 export function provideOrders(): EnvironmentProviders {
   return makeEnvironmentProviders([
@@ -18,7 +18,6 @@ export function provideOrders(): EnvironmentProviders {
     OrdersRepository,
     OrdersSelector,
     OrderIdsSelector,
-    TotalItemsQuantitySelector,
     { provide: I_ORDERS_GATEWAY, useClass: OrdersService },
     { provide: INITIAL_ORDERS, useFactory: makeOrderEntities },
     InMemoryOrdersService,

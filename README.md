@@ -40,7 +40,7 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Repository (gateway + entities) | Injectable class with TanStack Query | `repository/orders-repository/orders.repository.ts` |
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
 | Use case interactor | Injectable class | `use-cases/delete-order-item.use-case.ts` |
-| Selector | Injectable class with `computed` | `selectors/order-ids.selector`, `order-by-id.selector`, `total-items-quantity.selector`, … |
+| Selector | Injectable class with `computed` | `selectors/order-ids.selector`, `order-by-id.selector`, … |
 | Presenter | Injectable class returning a view models | `components/orders/orders.presenter.ts`, `components/order/order.presenter.ts` |
 | Controller | Injectable class returning callbacks | `components/order/order.controller.ts`, `components/order-item/order-item.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
@@ -109,8 +109,7 @@ src/features
     │   ├── item-by-id.selector
     │   ├── order-by-id.selector
     │   ├── order-ids.selector
-    │   ├── orders.selector.ts
-    │   └── total-items-quantity.selector
+    │   └── orders.selector.ts
     ├── store                       # application business entity
     │   └── orders-presentation.store.ts
     ├── use-cases                   # use case interactors
