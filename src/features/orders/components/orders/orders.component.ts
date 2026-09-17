@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ordersTestId } from '../../test-ids';
 import { Order } from '../order';
 import { OrdersResourcePicker } from '../orders-resource-picker';
@@ -6,10 +6,15 @@ import { OrdersStatistics } from '../orders-statistics';
 import { OrdersRepository, type OrderEntityId } from '../../repository';
 import { OrdersSelector } from '../../selectors';
 
+type Status = {
+  isSpinnerVisible: boolean;
+  label: string;
+  badgeType: 'success' | 'warning' | 'error';
+};
+
 interface Presenter {
   orderIds: OrderEntityId[];
-  isProcessing: boolean;
-  statusLabel: string;
+  status: Status;
 }
 
 @Component({
@@ -22,12 +27,6 @@ export class Orders implements Presenter {
   private readonly repository = inject(OrdersRepository);
   private readonly ordersSelector = inject(OrdersSelector);
 
-  private readonly _isLoading = computed(() => this.repository.getOrders.isLoading());
-  private readonly _isFetching = computed(() => this.repository.getOrders.isFetching());
-  private readonly _isMutating = computed(
-    () => this.repository.deleteOrder.isPending() || this.repository.deleteOrderItem.isPending(),
-  );
-
   protected readonly ordersTestId = ordersTestId;
 
   // presenter
@@ -35,20 +34,25 @@ export class Orders implements Presenter {
     return this.ordersSelector.result().map((order) => order.id);
   }
 
-  get isProcessing(): boolean {
-    return this._isLoading() || this._isFetching() || this._isMutating();
-  }
+  get status(): Status {
+    const isLoading = this.repository.getOrders.isLoading();
+    const isFetching = this.repository.getOrders.isFetching();
+    const isMutating =
+      this.repository.deleteOrder.isPending() || this.repository.deleteOrderItem.isPending();
+    const isError = this.repository.getOrders.isError();
 
-  get statusLabel(): string {
-    if (this._isLoading()) {
-      return 'loading';
+    if (isLoading) {
+      return { isSpinnerVisible: true, label: 'loading', badgeType: 'warning' };
     }
-    if (this._isFetching()) {
-      return 'fetching';
+    if (isFetching) {
+      return { isSpinnerVisible: true, label: 'fetching', badgeType: 'warning' };
     }
-    if (this._isMutating()) {
-      return 'mutating';
+    if (isMutating) {
+      return { isSpinnerVisible: true, label: 'mutating', badgeType: 'warning' };
     }
-    return 'idle';
+    if (isError) {
+      return { isSpinnerVisible: false, label: 'failed', badgeType: 'error' };
+    }
+    return { isSpinnerVisible: false, label: 'idle', badgeType: 'success' };
   }
 }

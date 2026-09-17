@@ -4,11 +4,16 @@
     <div class="text-xs text-base-content/40 uppercase tracking-widest mb-2">Resource</div>
     <div class="flex items-center justify-between">
       <app-orders-resource-picker />
-      <div [class]="'badge gap-1 ' + (isProcessing ? 'badge-warning' : 'badge-success')">
-        @if (isProcessing) {
+      <div
+        class="badge gap-1"
+        [class.badge-success]="status.badgeType === 'success'"
+        [class.badge-warning]="status.badgeType === 'warning'"
+        [class.badge-error]="status.badgeType === 'error'"
+      >
+        @if (status.isSpinnerVisible) {
           <span class="loading loading-spinner loading-xs"></span>
         }
-        {{ statusLabel }}
+        {{ status.label }}
       </div>
     </div>
   </div>
