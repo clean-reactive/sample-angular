@@ -1,25 +1,27 @@
 import { inject, Injectable, type Signal } from '@angular/core';
-import { OrdersRepository } from '../../repository';
 import type { OrderEntityId } from '../../repository';
+import { DeleteOrderUseCase } from '../../use-cases';
 import { createContext, injectContext } from '../../../../utils';
 import type { Controller } from './order.types';
 
+/**
+ * The minimal input needed to translate an Order UI event into an application
+ * action.
+ */
 export const orderControllerContext = createContext<{ orderId: Signal<OrderEntityId> }>();
 
+/**
+ * Adapts template callbacks to application use cases. Business orchestration
+ * stays in the use case; this controller only supplies the current order ID.
+ */
 @Injectable()
 export class OrderController implements Controller {
-  private readonly repository = inject(OrdersRepository);
+  private readonly deleteOrder = inject(DeleteOrderUseCase);
   private readonly context = injectContext(orderControllerContext);
 
   deleteOrderButtonClicked(): void {
-    void this.deleteOrderUseCase(this.context.orderId());
-  }
-
-  private async deleteOrderUseCase(orderId: OrderEntityId): Promise<void> {
-    try {
-      await this.repository.deleteOrder.mutateAsync({ orderId });
-    } catch (err) {
-      console.error('OrderController.deleteOrder', err);
-    }
+    // Angular does not await event handlers, so the use case is intentionally
+    // started asynchronously.
+    void this.deleteOrder.execute(this.context.orderId());
   }
 }

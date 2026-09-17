@@ -4,11 +4,17 @@ import { IsDeleteOrderMutatingSelector, OrderByIdSelector } from '../../selector
 import { createContext, injectContext } from '../../../../utils';
 import type { Presenter } from './order.types';
 
+/** The route-independent input required to present one order. */
 export const orderPresenterContext = createContext<{ orderId: Signal<OrderEntityId> }>();
 
 const DEFAULT_ITEM_IDS: ItemEntityId[] = [];
 const DEFAULT_USER_ID = '';
 
+/**
+ * Converts selector results into a stable, template-ready view model. It
+ * performs no mutations and returns safe defaults while the requested order is
+ * unavailable.
+ */
 @Injectable()
 export class OrderPresenter implements Presenter {
   private readonly context = injectContext(orderPresenterContext);

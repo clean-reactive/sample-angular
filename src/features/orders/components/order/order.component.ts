@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { deleteOrderButtonTestId, orderTestId } from '../../test-ids';
+import { DeleteOrderUseCase } from '../../use-cases';
 import { OrderItem } from '../order-item';
 import {
   IsDeleteOrderMutatingSelector,
@@ -14,19 +15,34 @@ import { I_ORDER_CONTROLLER, I_ORDER_PRESENTER } from './order.types';
 import type { Controller, Presenter } from './order.types';
 import type { ItemEntityId, OrderEntityId } from '../../repository';
 
+/**
+ * Composition root for the fully decomposed Order example.
+ *
+ * The component wires the input context, selectors, presenter, controller, and
+ * use case together.
+ */
 @Component({
   selector: 'app-order',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [OrderItem],
+  // OrderContext turns the `orderId` input into an injectable Signal and
+  // provides it to this component subtree.
+  // Mental model: this host directive acts like React
+  // <OrderContext.Provider value={{ orderId }}>.
   hostDirectives: [{ directive: OrderContext, inputs: ['orderId'] }],
   providers: [
-    orderByIdSelectorContext.provide([ORDER_CONTEXT], (context) => ({
-      orderId: context.orderId,
-    })),
+    // Each unit depends only on the contextual data it needs, rather than on a
+    // specific component in the component tree.
+    orderByIdSelectorContext.provide(ORDER_CONTEXT),
+    // React mental model: OrderByIdSelector reads the { orderId } value with
+    // useContext.
     OrderByIdSelector,
     isDeleteOrderMutatingSelectorContext.provide(ORDER_CONTEXT),
     IsDeleteOrderMutatingSelector,
+    DeleteOrderUseCase,
     orderPresenterContext.provide(ORDER_CONTEXT),
+    // Interface tokens keep the component dependent on contracts, not concrete
+    // implementations.
     { provide: I_ORDER_PRESENTER, useClass: OrderPresenter },
     orderControllerContext.provide(ORDER_CONTEXT),
     { provide: I_ORDER_CONTROLLER, useClass: OrderController },
@@ -39,6 +55,7 @@ export class Order implements Presenter, Controller {
   protected readonly orderTestId = orderTestId;
   protected readonly deleteOrderButtonTestId = deleteOrderButtonTestId;
 
+  // presenter
   get hasOrder(): boolean {
     return this.presenter.hasOrder;
   }
@@ -63,6 +80,7 @@ export class Order implements Presenter, Controller {
     return this.presenter.isDeleteOrderButtonDisabled;
   }
 
+  // controller
   deleteOrderButtonClicked(): void {
     this.controller.deleteOrderButtonClicked();
   }

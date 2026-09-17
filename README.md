@@ -39,11 +39,25 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Gateway interface | TypeScript interface + `InjectionToken` | `OrdersGateway` in `orders.gateway.ts` |
 | Repository (gateway + entities) | Injectable class with TanStack Query | `repository/orders-repository/orders.repository.ts` |
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
-| Use case interactor | Method on the interaction owner | `components/order/order.controller.ts`, `components/order-item/order-item.component.ts` |
+| Use case interactor | Injectable class or method on the interaction owner | `use-cases/delete-order.use-case.ts`, `components/order-item/order-item.component.ts` |
 | Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `is-delete-order-mutating.selector.ts` |
 | Presenter | Injectable class returning a view model | `components/order/order.presenter.ts` |
 | Controller | Injectable class returning callbacks | `components/order/order.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
+
+### Fully decomposed Order example
+
+`components/order` intentionally keeps every presentation unit separate as a reference implementation. Simpler components in this sample inline units that have no independent policy or reuse.
+
+The read path is:
+
+1. `OrderContext` captures the `orderId` input as a signal.
+2. Component-scoped providers pass that signal to `OrderByIdSelector`, `IsDeleteOrderMutatingSelector`, `OrderPresenter`, and `OrderController` through their narrow contexts.
+3. The selectors derive entity and mutation state without depending on the component.
+4. `OrderPresenter` converts that state into the `Presenter` view-model contract.
+5. `Order` exposes the contract to `order.component.html`.
+
+The write path is shorter: the template event reaches `OrderController`, which supplies the current ID to `DeleteOrderUseCase`; the use case then invokes `OrdersRepository`.
 
 ## Key design decisions
 
@@ -104,6 +118,8 @@ src/features
     │   └── orders.selector.ts
     ├── store                       # application business entity
     │   └── orders-presentation.store.ts
+    ├── use-cases                   # use case interactors
+    │   └── delete-order.use-case.ts
     ├── orders.providers.ts
     └── test-ids.ts
 ```

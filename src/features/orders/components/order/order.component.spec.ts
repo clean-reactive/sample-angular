@@ -5,6 +5,7 @@ import { Order } from './order.component';
 import { makeOrderEntityId, type OrderEntityId } from '../../repository';
 import { provideOrders } from '../../orders.providers';
 
+// Exercise Order through its public input, as a real parent component would.
 @Component({
   standalone: true,
   template: '<app-order [orderId]="orderId"></app-order>',
@@ -15,6 +16,8 @@ class TestHostComponent {
 }
 
 describe(`${Order.name}`, () => {
+  // This smoke test verifies that the complete local dependency graph can be
+  // composed.
   it('has all dependencies resolved', async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],

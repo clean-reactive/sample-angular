@@ -5,6 +5,10 @@ import type { Selector } from '../../../@types';
 
 const DEFAULT_ORDERS: OrderEntity[] = [];
 
+/**
+ * Normalizes repository query state into the shared Order entity collection
+ * used by selectors.
+ */
 @Injectable()
 export class OrdersSelector implements Selector<Signal<OrderEntity[]>> {
   private readonly repository = inject(OrdersRepository);
