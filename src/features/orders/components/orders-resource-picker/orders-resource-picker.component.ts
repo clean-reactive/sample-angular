@@ -14,7 +14,28 @@ interface Controller {
 @Component({
   selector: 'app-orders-resource-picker',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './orders-resource-picker.component.html',
+  template: `
+    <div class="join">
+      <input
+        class="join-item btn btn-sm"
+        type="radio"
+        name="orders-resource"
+        aria-label="Local"
+        value="local"
+        [checked]="isLocalChecked"
+        (change)="onLocalChanged()"
+      />
+      <input
+        class="join-item btn btn-sm"
+        type="radio"
+        name="orders-resource"
+        aria-label="Remote"
+        value="remote"
+        [checked]="isRemoteChecked"
+        (change)="onRemoteChanged()"
+      />
+    </div>
+  `,
 })
 export class OrdersResourcePicker implements Presenter, Controller {
   private readonly presentationStore = inject(OrdersPresentationStore);
