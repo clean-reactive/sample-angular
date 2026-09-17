@@ -22,9 +22,6 @@ export class Orders implements Presenter {
   private readonly repository = inject(OrdersRepository);
   private readonly ordersSelector = inject(OrdersSelector);
 
-  private readonly _orderIds = computed(() =>
-    this.ordersSelector.result().map((order) => order.id),
-  );
   private readonly _isLoading = computed(() => this.repository.getOrders.isLoading());
   private readonly _isFetching = computed(() => this.repository.getOrders.isFetching());
   private readonly _isMutating = computed(
@@ -35,7 +32,7 @@ export class Orders implements Presenter {
 
   // presenter
   get orderIds() {
-    return this._orderIds();
+    return this.ordersSelector.result().map((order) => order.id);
   }
 
   get isProcessing(): boolean {

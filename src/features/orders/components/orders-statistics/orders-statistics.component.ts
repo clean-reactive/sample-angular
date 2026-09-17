@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, type Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { OrdersSelector } from '../../selectors';
 import { totalItemQuantityTestId } from '../../test-ids';
-import type { OrderEntity } from '../../repository';
 
 interface Presenter {
   uniqueUsersCount: number;
@@ -35,41 +34,28 @@ interface Presenter {
   `,
 })
 export class OrdersStatistics implements Presenter {
-  private readonly ordersSelector = inject(OrdersSelector);
-
-  private get _orders(): Signal<OrderEntity[]> {
-    return this.ordersSelector.result;
-  }
-  private readonly _uniqueUsersCount: Signal<number> = computed(
-    () => new Set(this._orders().map((o) => o.userId)).size,
-  );
-  private readonly _itemLinesCount: Signal<number> = computed(() =>
-    this._orders().reduce((acc, o) => acc + o.itemEntities.length, 0),
-  );
-  private readonly _totalItemsQuantity: Signal<number> = computed(() =>
-    this._orders().reduce(
-      (acc, entity) =>
-        acc + entity.itemEntities.reduce((itemAcc, item) => itemAcc + item.quantity, 0),
-      0,
-    ),
-  );
+  private readonly orders = inject(OrdersSelector).result;
 
   protected readonly totalItemQuantityTestId = totalItemQuantityTestId;
 
   // presenter
   get uniqueUsersCount(): number {
-    return this._uniqueUsersCount();
+    return new Set(this.orders().map((order) => order.userId)).size;
   }
 
   get ordersCount(): number {
-    return this._orders().length;
+    return this.orders().length;
   }
 
   get itemLinesCount(): number {
-    return this._itemLinesCount();
+    return this.orders().reduce((count, order) => count + order.itemEntities.length, 0);
   }
 
   get totalItemsQuantity(): number {
-    return this._totalItemsQuantity();
+    return this.orders().reduce(
+      (total, order) =>
+        total + order.itemEntities.reduce((subtotal, item) => subtotal + item.quantity, 0),
+      0,
+    );
   }
 }

@@ -55,11 +55,6 @@ export class OrderItem implements Presenter, Controller {
       return variables.orderId === this.orderId() && variables.itemId === this.itemId();
     },
   }));
-  private readonly _isDeleteItemButtonDisabled = computed(
-    () =>
-      this._pendingItemDeletes().includes(true) || this._pendingOrderIds().includes(this.orderId()),
-  );
-
   protected readonly orderItemTestId = orderItemTestId;
   protected readonly deleteItemButtonTestId = deleteItemButtonTestId;
 
@@ -80,7 +75,9 @@ export class OrderItem implements Presenter, Controller {
   }
 
   get isDeleteItemButtonDisabled(): boolean {
-    return this._isDeleteItemButtonDisabled();
+    return (
+      this._pendingItemDeletes().includes(true) || this._pendingOrderIds().includes(this.orderId())
+    );
   }
 
   async deleteOrderItemButtonClicked(): Promise<void> {
