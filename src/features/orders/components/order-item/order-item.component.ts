@@ -38,11 +38,11 @@ export class OrderItem implements Presenter, Controller {
     const order = this.ordersSelector.result().find((candidate) => candidate.id === this.orderId());
     return order?.itemEntities.find((item) => item.id === this.itemId());
   });
-  private readonly _pendingOrderIds = injectMutationState(() => ({
+  private readonly _pendingOrderDeletions = injectMutationState(() => ({
     filters: { mutationKey: deleteOrderMutationKey, status: 'pending' },
     select: (mutation) => {
       const variables = mutation.state.variables as { orderId: OrderEntityId };
-      return variables.orderId;
+      return { orderId: variables.orderId };
     },
   }));
   private readonly _pendingItemDeletes = injectMutationState(() => ({
@@ -52,9 +52,13 @@ export class OrderItem implements Presenter, Controller {
         orderId: OrderEntityId;
         itemId: ItemEntityId;
       };
-      return variables.orderId === this.orderId() && variables.itemId === this.itemId();
+      return {
+        orderId: variables.orderId,
+        itemId: variables.itemId,
+      };
     },
   }));
+
   protected readonly orderItemTestId = orderItemTestId;
   protected readonly deleteItemButtonTestId = deleteItemButtonTestId;
 
@@ -75,9 +79,13 @@ export class OrderItem implements Presenter, Controller {
   }
 
   get isDeleteItemButtonDisabled(): boolean {
-    return (
-      this._pendingItemDeletes().includes(true) || this._pendingOrderIds().includes(this.orderId())
+    const isPendingItemDelete = this._pendingItemDeletes().some(
+      (pending) => pending.orderId === this.orderId() && pending.itemId === this.itemId(),
     );
+    const isPendingOrderDelete = this._pendingOrderDeletions().some(
+      (pending) => pending.orderId === this.orderId(),
+    );
+    return isPendingItemDelete || isPendingOrderDelete;
   }
 
   async deleteOrderItemButtonClicked(): Promise<void> {
