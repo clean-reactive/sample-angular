@@ -26,13 +26,13 @@ import type { ItemEntityId, OrderEntityId } from '../../repository';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [OrderItem],
   // OrderContext turns the `orderId` input into an injectable Signal and
-  // provides it to this component subtree.
+  // provides it within this Order's DI scope.
   // Mental model: this host directive acts like React
   // <OrderContext.Provider value={{ orderId }}>.
   hostDirectives: [{ directive: OrderContext, inputs: ['orderId'] }],
   providers: [
-    // Each unit depends only on the contextual data it needs, rather than on a
-    // specific component in the component tree.
+    // Each unit depends only on the contextual data it needs, rather than on
+    // the component class that provides it.
     orderByIdSelectorContext.provide(ORDER_CONTEXT),
     // React mental model: OrderByIdSelector reads the { orderId } value with
     // useContext.

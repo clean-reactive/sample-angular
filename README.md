@@ -48,27 +48,19 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 
 ### Fully decomposed Order example
 
-`components/order` intentionally keeps every presentation unit separate as a reference implementation. Simpler components in this sample inline units that have no independent policy or reuse.
-
-The read path is:
-
-1. `OrderContext` captures the `orderId` input as a signal.
-2. Component-scoped providers pass that signal to `OrderByIdSelector`, `IsDeleteOrderMutatingSelector`, `OrderPresenter`, and `OrderController` through their narrow contexts.
-3. The selectors derive entity and mutation state without depending on the component.
-4. `OrderPresenter` converts that state into the ViewModel values declared by the `Presenter` contract.
-5. `Order` exposes the contract to `order.component.html`.
-
-The write path is shorter: the template event reaches `OrderController`, which supplies the current ID to `DeleteOrderUseCase`; the use case then invokes `OrdersRepository`.
+`components/order` intentionally keeps every unit separate as a reference implementation. Simpler components in this sample inline units that have no independent policy or reuse.
 
 ## Key design decisions
+
+**Extracted units as Angular injectables.** Clean Reactive Architecture defines each unit's responsibility, dependencies, and place in the data flow without prescribing its implementation. In this sample, simple units are inlined into their owning components. When a use case, selector, presenter, or controller warrants an independent implementation, it is an injectable class composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
+
+**Context API for scoped data.** A context makes a value available within a component's DI scope. The `Order` component provides its reactive `orderId` once, and each unit created in that scope can read it from context. This avoids passing `orderId` to every unit manually or coupling those units to the `Order` component. The mental model is React's `<Context.Provider value={...}>` and `useContext`.
 
 **Application business entity as an Angular signal-based class.** `OrdersPresentationStore` holds application-level state (`ordersResource: "local" | "remote"`) that persists across use case calls and has its own rules. It is managed by a dedicated injectable class backed by Angular signals, not by TanStack Query.
 
 **Repository as a TanStack Query injectable class.** The `OrdersRepository` is a composite of the gateway interface and the enterprise business entity. It exposes `OrdersGateway` behaviour through `injectQuery` / `injectMutation` calls and owns the entity cache that presenters and selectors read from.
 
 **Gateway implementations resolved at runtime via Angular DI.** `I_ORDERS_GATEWAY` is an `InjectionToken` that is provided with either `InMemoryOrdersService` or `RemoteOrdersService` depending on the `ordersResource` value stored in the application business entity. The active implementation can change without any structural change to the architecture.
-
-**Injectable classes as architectural units.** Angular injectable classes are the natural host for use cases, selectors, presenters, and controllers. Each class has a single, clearly scoped responsibility that matches exactly one architectural unit.
 
 **Signals for reactive state.** Selectors and presenters expose their results as Angular `Signal` / `computed` values, enabling fine-grained reactive updates without RxJS streams.
 
