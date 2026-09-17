@@ -40,8 +40,8 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Repository (gateway + entities) | Injectable class with TanStack Query | `repository/orders-repository/orders.repository.ts` |
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
 | Use case interactor | Injectable class | `use-cases/delete-order-item.use-case.ts` |
-| Selector | Injectable class with `computed` | `selectors/order-ids.selector`, `order-by-id.selector`, … |
-| Presenter | Injectable class returning a view models | `components/orders/orders.presenter.ts`, `components/order/order.presenter.ts` |
+| Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `item-by-id.selector`, … |
+| Presenter | Injectable class returning a view model | `components/order/order.presenter.ts`, `components/order-item/order-item.presenter.ts` |
 | Controller | Injectable class returning callbacks | `components/order/order.controller.ts`, `components/order-item/order-item.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
 
@@ -89,9 +89,7 @@ src/features
     │   │   └── order-item.types.ts
     │   ├── orders
     │   │   ├── orders.component.ts
-    │   │   ├── orders.component.html
-    │   │   ├── orders.presenter.ts
-    │   │   └── orders.types.ts
+    │   │   └── orders.component.html
     │   ├── orders-resource-picker
     │   └── orders-statistics
     ├── repository                  # repository, gateway interface, gateway implementations
@@ -108,7 +106,6 @@ src/features
     │   ├── is-delete-order-mutating.selector.ts
     │   ├── item-by-id.selector
     │   ├── order-by-id.selector
-    │   ├── order-ids.selector
     │   └── orders.selector.ts
     ├── store                       # application business entity
     │   └── orders-presentation.store.ts

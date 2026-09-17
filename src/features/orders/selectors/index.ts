@@ -4,5 +4,4 @@ export {
   IsDeleteOrderMutatingSelector,
   isDeleteOrderMutatingSelectorContext,
 } from './is-delete-order-mutating.selector';
-export { OrderIdsSelector } from './order-ids.selector';
 export { ItemByIdSelector, itemByIdSelectorContext } from './item-by-id.selector';

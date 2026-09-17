@@ -1,32 +1,57 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ordersTestId } from '../../test-ids';
 import { Order } from '../order';
 import { OrdersResourcePicker } from '../orders-resource-picker';
 import { OrdersStatistics } from '../orders-statistics';
-import { OrdersPresenter } from './orders.presenter';
-import type { Presenter } from './orders.types';
-import type { OrderEntityId } from '../../repository';
+import { OrdersRepository, type OrderEntityId } from '../../repository';
+import { OrdersSelector } from '../../selectors';
+
+interface Presenter {
+  orderIds: OrderEntityId[];
+  isProcessing: boolean;
+  statusLabel: string;
+}
 
 @Component({
   selector: 'app-orders',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Order, OrdersResourcePicker, OrdersStatistics],
-  providers: [OrdersPresenter],
   templateUrl: './orders.component.html',
 })
 export class Orders implements Presenter {
-  protected readonly ordersTestId = ordersTestId;
-  private readonly presenter = inject(OrdersPresenter);
+  private readonly repository = inject(OrdersRepository);
+  private readonly ordersSelector = inject(OrdersSelector);
 
-  get orderIds(): OrderEntityId[] {
-    return this.presenter.orderIds;
+  private readonly _orderIds = computed(() =>
+    this.ordersSelector.result().map((order) => order.id),
+  );
+  private readonly _isLoading = computed(() => this.repository.getOrders.isLoading());
+  private readonly _isFetching = computed(() => this.repository.getOrders.isFetching());
+  private readonly _isMutating = computed(
+    () => this.repository.deleteOrder.isPending() || this.repository.deleteOrderItem.isPending(),
+  );
+
+  protected readonly ordersTestId = ordersTestId;
+
+  // presenter
+  get orderIds() {
+    return this._orderIds();
   }
 
   get isProcessing(): boolean {
-    return this.presenter.isProcessing;
+    return this._isLoading() || this._isFetching() || this._isMutating();
   }
 
   get statusLabel(): string {
-    return this.presenter.statusLabel;
+    if (this._isLoading()) {
+      return 'loading';
+    }
+    if (this._isFetching()) {
+      return 'fetching';
+    }
+    if (this._isMutating()) {
+      return 'mutating';
+    }
+    return 'idle';
   }
 }

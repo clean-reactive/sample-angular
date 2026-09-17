@@ -10,14 +10,13 @@ import {
   RemoteOrdersService,
 } from './repository';
 import { OrdersPresentationStore } from './store';
-import { OrderIdsSelector, OrdersSelector } from './selectors';
+import { OrdersSelector } from './selectors';
 
 export function provideOrders(): EnvironmentProviders {
   return makeEnvironmentProviders([
     OrdersPresentationStore,
     OrdersRepository,
     OrdersSelector,
-    OrderIdsSelector,
     { provide: I_ORDERS_GATEWAY, useClass: OrdersService },
     { provide: INITIAL_ORDERS, useFactory: makeOrderEntities },
     InMemoryOrdersService,
