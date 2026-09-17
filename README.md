@@ -2,7 +2,7 @@
 
 A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular and TanStack Query.
 
-The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. It covers entities, gateway interfaces, repositories, use cases, selectors, presenters, controllers, and the user interface — with unit and integration tests for each layer.
+The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. It covers entities, gateway interfaces, repositories, use cases, selectors, presenters, controllers, and the user interface.
 
 ## Getting started
 
@@ -53,6 +53,8 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 ## Key design decisions
 
 **Extracted units as Angular injectables.** Clean Reactive Architecture does not prescribe how units are implemented. In this sample, extracted units are implemented as injectable classes composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
+
+**Component classes as composition roots.** A component class composes the units used by its view, wires their dependencies through Angular DI, and exposes the presenter and controller surface to the template. Units do not need to be injectable when their behavior is local to that component.
 
 **Context API for scoped data.** A context makes a value available within a component's DI scope. The `Order` component provides its reactive `orderId` once, and each unit created in that scope can read it from context. This avoids passing `orderId` to every unit manually or coupling those units to the `Order` component. The mental model is React's `<Context.Provider value={...}>` and `useContext`.
 
