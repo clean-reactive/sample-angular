@@ -52,7 +52,7 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 
 ## Key design decisions
 
-**Extracted units as Angular injectables.** Clean Reactive Architecture defines each unit's responsibility, dependencies, and place in the data flow without prescribing its implementation. In this sample, simple units are inlined into their owning components. When a use case, selector, presenter, or controller warrants an independent implementation, it is an injectable class composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
+**Extracted units as Angular injectables.** Clean Reactive Architecture does not prescribe how units are implemented. In this sample, extracted units are implemented as injectable classes composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
 
 **Context API for scoped data.** A context makes a value available within a component's DI scope. The `Order` component provides its reactive `orderId` once, and each unit created in that scope can read it from context. This avoids passing `orderId` to every unit manually or coupling those units to the `Order` component. The mental model is React's `<Context.Provider value={...}>` and `useContext`.
 

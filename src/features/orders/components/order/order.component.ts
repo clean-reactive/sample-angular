@@ -33,9 +33,9 @@ import type { ItemEntityId, OrderEntityId } from '../../repository';
   providers: [
     // Each unit depends only on the contextual data it needs, rather than on
     // the component class that provides it.
+    // Mental model: OrderByIdSelector reads the { orderId } value like
+    // useContext in React.
     orderByIdSelectorContext.provide(ORDER_CONTEXT),
-    // React mental model: OrderByIdSelector reads the { orderId } value with
-    // useContext.
     OrderByIdSelector,
     isDeleteOrderMutatingSelectorContext.provide(ORDER_CONTEXT),
     IsDeleteOrderMutatingSelector,

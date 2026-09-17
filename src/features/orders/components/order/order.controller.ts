@@ -20,8 +20,6 @@ export class OrderController implements Controller {
   private readonly context = injectContext(orderControllerContext);
 
   deleteOrderButtonClicked(): void {
-    // Angular does not await event handlers, so the use case is intentionally
-    // started asynchronously.
     void this.deleteOrder.execute(this.context.orderId());
   }
 }
