@@ -6,10 +6,9 @@ The sample shows a concrete, working mapping of every architectural unit from th
 
 > **Architecture reference implementation.** `components/order`
 > intentionally keeps every unit separate so the complete architecture is
-> visible in one place. This is for understanding the boundaries and how a
-> codebase may evolve, not a rule that every component must follow. Simpler
-> components in this sample inline units that have no independent policy or
-> reuse. See the
+> visible. This is for understanding the boundaries and how a codebase may evolve,
+> not a rule that every component must follow. Simpler components in this sample
+> inline units that have no independent policy or reuse. See the
 > [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
 > for the incremental approach behind these choices.
 
