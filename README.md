@@ -34,7 +34,7 @@ npm start
 - [TanStack Query](https://tanstack.com/query/latest) (`@tanstack/angular-query-experimental`)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/) + [daisyUI](https://daisyui.com/)
-- [Vitest](https://vitest.dev/) + [Angular Testing Library](https://testing-library.com/docs/angular-testing-library/intro/)
+- [Vitest](https://vitest.dev/) + Angular `TestBed`
 - [MSW](https://mswjs.io/) for network-level HTTP interception in gateway tests
 - [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) for dependency validation and graph visualization
 
@@ -46,14 +46,14 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | --- | --- | --- |
 | Application business entity | Injectable class with Angular `signal` | `store/orders-presentation.store.ts` |
 | Enterprise business entity | TypeScript type | `repository/orders-repository/orders.repository.types.ts` |
-| Gateway interface | TypeScript interface + `InjectionToken` | `OrdersGateway` in `orders.gateway.ts` |
+| Gateway interface | TypeScript interface + `InjectionToken` | `OrdersGateway` in `repository/orders-repository/orders.repository.types.ts` |
 | Repository (gateway + entities) | Injectable class with TanStack Query | `repository/orders-repository/orders.repository.ts` |
 | Gateway implementation | Injectable class implementing `OrdersGateway` | `InMemoryOrdersService`, `RemoteOrdersService` |
 | Use case interactor | Injectable class or method on the interaction owner | `use-cases/delete-order.use-case.ts`, `components/order-item/order-item.component.ts` |
 | Selector | Injectable class with `computed` | `selectors/order-by-id.selector`, `is-delete-order-mutating.selector.ts` |
 | Presenter | Injectable class exposing ViewModels | `components/order/order.presenter.ts` |
 | ViewModel | Value returned by each presenter property | `Presenter` properties in `components/order/order.types.ts` |
-| Controller | Injectable class returning callbacks | `components/order/order.controller.ts` |
+| Controller | Injectable class exposing event handlers | `components/order/order.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
 
 ## Key design decisions
@@ -68,9 +68,9 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 
 **Application business entity as an Angular signal-based class.** `OrdersPresentationStore` holds application-level state (`ordersResource: "local" | "remote"`) that persists across use case calls and has its own rules. It is managed by a dedicated injectable class backed by Angular signals, not by TanStack Query.
 
-**Repository as a TanStack Query injectable class.** The `OrdersRepository` is a composite of the gateway interface and the enterprise business entity. It exposes `OrdersGateway` behaviour through `injectQuery` / `injectMutation` calls and owns the entity cache that presenters and selectors read from.
+**Repository as a TanStack Query injectable class.** `OrdersRepository` combines gateway access and observable entity state. It consumes `OrdersGateway` through `I_ORDERS_GATEWAY`, exposes query and mutation operations, and manages the entity cache that presenters and selectors read from.
 
-**Gateway implementations resolved at runtime via Angular DI.** `I_ORDERS_GATEWAY` is an `InjectionToken` that is provided with either `InMemoryOrdersService` or `RemoteOrdersService` depending on the `ordersResource` value stored in the application business entity. The active implementation can change without any structural change to the architecture.
+**Gateway selection at runtime.** Angular DI binds `I_ORDERS_GATEWAY` to `OrdersService`, which delegates calls to `InMemoryOrdersService` or `RemoteOrdersService` according to `ordersResource`. Switching resources changes the delegate, while the DI binding remains the same.
 
 **Signals for reactive state.** Selectors and presenters expose their results as Angular `Signal` / `computed` values, enabling fine-grained reactive updates without RxJS streams.
 
