@@ -2,7 +2,7 @@
 
 A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular and TanStack Query.
 
-The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. It covers entities, gateway interfaces, repositories, use cases, selectors, presenters, controllers, and the user interface.
+The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. 
 
 > **Architecture reference implementation.** `components/order`
 > intentionally keeps every unit separate so the complete architecture is
@@ -12,6 +12,8 @@ The sample shows a concrete, working mapping of every architectural unit from th
 > reuse. See the
 > [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
 > for the incremental approach behind these choices.
+
+![Angular sample application](./sample.gif)
 
 ## Getting started
 
