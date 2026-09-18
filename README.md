@@ -2,7 +2,7 @@
 
 A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular and TanStack Query.
 
-The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. 
+The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code.
 
 > **Architecture reference implementation.** `components/order`
 > intentionally keeps every unit separate so the complete architecture is
@@ -85,8 +85,8 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 src/features
 └── orders
     ├── api                         # external resource (HTTP client + API)
-    │   ├── orders-api.factory.ts
-    │   ├── orders-http.service.ts
+    │   ├── api-orders-dto.factory.ts
+    │   ├── api-orders.service.ts
     │   └── types.ts
     ├── components                  # user interface, presenters, controllers
     │   ├── order
@@ -103,20 +103,24 @@ src/features
     │   │   ├── orders.component.ts
     │   │   └── orders.component.html
     │   ├── orders-resource-picker
+    │   │   └── orders-resource-picker.component.ts
     │   └── orders-statistics
+    │       └── orders-statistics.component.ts
     ├── repository                  # repository, gateway interface, gateway implementations
     │   └── orders-repository
-    │       ├── in-memory-orders-service
-    │       │   └── in-memory-orders.service.ts
-    │       ├── orders.gateway.ts
+    │       ├── orders-service
+    │       │   ├── in-memory-orders-service
+    │       │   │   ├── in-memory-orders.service.ts
+    │       │   │   └── order-entity.factory.ts
+    │       │   ├── orders.service.ts
+    │       │   └── remote-orders-service
+    │       │       └── remote-orders.service.ts
     │       ├── orders.repository.ts
-    │       ├── orders.repository.types.ts
-    │       ├── orders.repository.utils.ts
-    │       ├── orders.service.ts
-    │       └── remote-orders.service.ts
+    │       └── orders.repository.types.ts
     ├── selectors                   # selectors
     │   ├── is-delete-order-mutating.selector.ts
     │   ├── order-by-id.selector
+    │   │   └── order-by-id.selector.ts
     │   └── orders.selector.ts
     ├── store                       # application business entity
     │   └── orders-presentation.store.ts
