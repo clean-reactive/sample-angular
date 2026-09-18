@@ -4,6 +4,15 @@ A sample application that demonstrates [Clean Reactive Architecture](https://git
 
 The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code. It covers entities, gateway interfaces, repositories, use cases, selectors, presenters, controllers, and the user interface.
 
+> **Architecture reference implementation.** `components/order`
+> intentionally keeps every unit separate so the complete architecture is
+> visible in one place. This is for understanding the boundaries and how a
+> codebase may evolve, not a rule that every component must follow. Simpler
+> components in this sample inline units that have no independent policy or
+> reuse. See the
+> [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
+> for the incremental approach behind these choices.
+
 ## Getting started
 
 Install dependencies:
@@ -46,15 +55,13 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 | Controller | Injectable class returning callbacks | `components/order/order.controller.ts` |
 | User interface | Angular component | `components/orders`, `components/order`, `components/order-item` |
 
-### Fully decomposed Order example
-
-`components/order` intentionally keeps every unit separate as a reference implementation. Simpler components in this sample inline units that have no independent policy or reuse.
-
 ## Key design decisions
 
 **Extracted units as Angular injectables.** Clean Reactive Architecture does not prescribe how units are implemented. In this sample, extracted units are implemented as injectable classes composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
 
 **Component classes as composition roots.** A component class composes the units used by its view, wires their dependencies through Angular DI, and exposes the presenter and controller surface to the template. Units do not need to be injectable when their behavior is local to that component.
+
+**Self-contained Angular components.** Components in this sample own their view-facing behavior and resolve their data within their own composition boundary. Their inputs are limited to identity or configuration, such as `orderId` and `itemId`, rather than receiving data through inputs. This is a deliberate demonstration choice, not a mandatory rule, it demonstrates how to reduce structural coupling.
 
 **Context API for scoped data.** A context makes a value available within a component's DI scope. The `Order` component provides its reactive `orderId` once, and each unit created in that scope can read it from context. This avoids passing `orderId` to every unit manually or coupling those units to the `Order` component. The mental model is React's `<Context.Provider value={...}>` and `useContext`.
 
@@ -65,8 +72,6 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 **Gateway implementations resolved at runtime via Angular DI.** `I_ORDERS_GATEWAY` is an `InjectionToken` that is provided with either `InMemoryOrdersService` or `RemoteOrdersService` depending on the `ordersResource` value stored in the application business entity. The active implementation can change without any structural change to the architecture.
 
 **Signals for reactive state.** Selectors and presenters expose their results as Angular `Signal` / `computed` values, enabling fine-grained reactive updates without RxJS streams.
-
-**Dependency graph.** `dependency-cruiser` is configured to detect circular dependencies, orphan modules, and unresolvable imports. The `deps:graph` script generates a visual SVG of the module graph.
 
 ## UML diagram representing application architecture
 
