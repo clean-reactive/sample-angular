@@ -1,16 +1,12 @@
 # Clean Reactive Architecture — Angular Sample
 
-A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular and TanStack Query.
+A sample application that demonstrates [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md) implemented with Angular.
 
 The sample shows a concrete, working mapping of every architectural unit from the diagram to idiomatic Angular code.
 
-> **Architecture reference implementation.** `components/order`
-> intentionally keeps every unit separate so the complete architecture is
-> visible. This is for understanding the boundaries and how a codebase may evolve,
-> not a rule that every component must follow. Simpler components in this sample
-> inline units that have no independent policy or reuse. See the
-> [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
-> for the incremental approach behind these choices.
+>:bulb: **Architecture reference implementation.** `components/order` intentionally keeps every unit separate so the complete architecture is visible. This is for understanding the boundaries and how a codebase may evolve, not a rule that every component must follow. Simpler components inline units that have no independent policy or reuse. See the [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md) for the incremental approach behind these choices.
+
+> :bulb: **Multiple data resources.** The repository accesses either an in-memory resource or a remote API through the same gateway contract. This demonstrates substituting resource implementations without changing the consuming units. Multiple resources and runtime switching are included for demonstration purposes, not required by the architecture.
 
 ![Angular sample application](./sample.gif)
 
@@ -58,25 +54,93 @@ The table below shows how each unit from the Clean Reactive Architecture diagram
 
 ## Key design decisions
 
-**Extracted units as Angular injectables.** Clean Reactive Architecture does not prescribe how units are implemented. In this sample, extracted units are implemented as injectable classes composed through Angular DI. `Order` deliberately extracts all of these units to demonstrate the fully decomposed architecture.
+These decisions are specific to this sample, guided by its demonstration goals
+and the capabilities of Angular and the selected libraries. The architecture
+defines responsibilities and boundaries without prescribing specific technical
+solutions.
 
-**Component classes as composition roots.** A component class composes the units used by its view, wires their dependencies through Angular DI, and exposes the presenter and controller surface to the template. Units do not need to be injectable when their behavior is local to that component.
+**Extracted units as Angular injectables.** Extracted units in this sample are
+implemented as injectable classes composed through Angular DI.
 
-**Self-contained Angular components.** Components in this sample own their view-facing behavior and resolve their data within their own composition boundary. Their inputs are limited to identity or configuration, such as `orderId` and `itemId`, rather than receiving data through inputs. This is a deliberate demonstration choice, not a mandatory rule, it demonstrates how to reduce structural coupling.
+**Component classes as composition roots.** A component class composes the units
+used by its view and wires their dependencies through Angular DI.
 
-**Context API for scoped data.** A context makes a value available within a component's DI scope. The `Order` component provides its reactive `orderId` once, and each unit created in that scope can read it from context. This avoids passing `orderId` to every unit manually or coupling those units to the `Order` component. The mental model is React's `<Context.Provider value={...}>` and `useContext`.
+**Self-contained Angular components.** Components in this sample own their
+view-facing behavior and resolve their data within their own composition
+boundary. Their inputs are limited to identity or configuration parameters, such as
+`orderId` and `itemId`, rather than receiving data through inputs. This is a
+deliberate demonstration choice to reduce structural coupling, not a mandatory rule.
 
-**Application business entity as an Angular signal-based class.** `OrdersPresentationStore` holds application-level state (`ordersResource: "local" | "remote"`) that persists across use case calls and has its own rules. It is managed by a dedicated injectable class backed by Angular signals, not by TanStack Query.
+**Context API for scoped data.** A context makes a value available within a
+component's DI scope. The `Order` component provides its reactive `orderId`
+once, and each unit created in that scope can read it from context. This avoids
+passing `orderId` to every unit manually or coupling those units to the `Order`
+component. The mental model is React's `<Context.Provider value={...}>` and
+`useContext`.
 
-**Repository as a TanStack Query injectable class.** `OrdersRepository` combines gateway access and observable entity state. It consumes `OrdersGateway` through `I_ORDERS_GATEWAY`, exposes query and mutation operations, and manages the entity cache that presenters and selectors read from.
+**Application business entity as an Angular signal-based class.**
+`OrdersPresentationStore` holds application-level state (`ordersResource:
+"local" | "remote"`) that persists across use case calls and has its own rules.
+It is managed by a dedicated injectable class backed by Angular signals, not by
+TanStack Query.
 
-**Gateway selection at runtime.** Angular DI binds `I_ORDERS_GATEWAY` to `OrdersService`, which delegates calls to `InMemoryOrdersService` or `RemoteOrdersService` according to `ordersResource`. Switching resources changes the delegate, while the DI binding remains the same.
+**Repository as a TanStack Query injectable class.** `OrdersRepository` combines
+gateway access and observable entity state. It consumes `OrdersGateway` through
+`I_ORDERS_GATEWAY`, exposes query and mutation operations, and manages the
+entity cache that presenters and selectors read from.
 
-**Signals for reactive state.** Selectors and presenters expose their results as Angular `Signal` / `computed` values, enabling fine-grained reactive updates without RxJS streams.
+**Gateway selection at runtime.** Angular DI binds `I_ORDERS_GATEWAY` to
+`OrdersService`, which delegates calls to `InMemoryOrdersService` or
+`RemoteOrdersService` according to `ordersResource`. Switching resources
+changes the delegate, while the DI binding remains the same.
+
+**Signals for reactive state.** Selectors expose `computed` signals.
+`OrderPresenter` reads them through getters that return plain values to the
+template, preserving Angular's reactive tracking.
 
 ## UML diagram representing application architecture
 
 ![clean-reactive-architecture-repository-with-gateway-interface](./clean-reactive-architecture-repository-with-gateway-interface.png)
+
+<details>
+  <summary>mermaid</summary>
+
+```mermaid
+graph TD
+
+subgraph R1["Repository"]
+  E["Entities"]
+  G["Gateway"]
+  GI["Gateway < I >"]
+end
+
+ER["External Resource"]
+UI["User Interface"]
+P["Presenter"]
+C["Controller"]
+PI["Presenter < I >"]
+CI["Controller < I >"]
+UC["Use Case Interactor"]
+
+%% implementation relation
+P -. implements .-> PI
+C -. implements .-> CI
+G -. implements .-> GI
+
+%% dependency relation
+UI -- depends --> PI
+UI -- depends --> CI
+C -- depends --> UC
+P -- depends --> E
+UC -- depends --> E
+UC -- depends --> GI
+G -- depends --> ER
+
+classDef repository fill:none,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5;
+class R1 repository;
+```
+
+</details>
 
 ## Folder structure
 
