@@ -63,7 +63,7 @@ These decisions are specific to this sample, guided by its demonstration goals a
 
 **Extracted units as Angular injectables.** Extracted units in this sample are implemented as injectable classes composed through Angular DI.
 
-**Component classes as composition roots.** A component class composes the units used by its view and wires their dependencies through Angular DI.
+**Component classes as composition roots.** A component class composes the units including User Interface unit (implemented with the template) and wires their dependencies through Angular DI.
 
 **Self-contained Angular components.** Components in this sample own their view-facing behavior and resolve their data within their own composition boundary. Their inputs are limited to identity or configuration parameters, such as `orderId` and `itemId`, rather than receiving data through inputs. This is a deliberate demonstration choice to reduce structural coupling, not a mandatory rule.
 
